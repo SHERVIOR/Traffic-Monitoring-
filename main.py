@@ -1,29 +1,16 @@
-import serial
 import time
+from RF24 import *
 
-arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
+radio = RF24(22, 0)
+pipes = [0xF0F0F0F0E1, 0xF0F0F0F0D2]  # Set the pipe addresses
 
-def write_read(l1, l2):
-    combined_input = f"{l1},{l2}\n"
-    arduino.write(bytes(combined_input, 'utf-8'))
-    time.sleep(0.05)
-    data = arduino.readline()
-    return data
+radio.begin()
+radio.setChannel(0x60)
+radio.openWritingPipe(pipes[1])
+
+message = "1"
 
 while True:
-    while True:
-        try:
-            l1 = int(input("Enter a value for L1: "))
-            break
-        except ValueError:
-            print("Invalid input. Please enter an integer.")
-
-    while True:
-        try:
-            l2 = int(input("Enter a value for L2: "))
-            break
-        except ValueError:
-            print("Invalid input. Please enter an integer.")
-
-    value = write_read(l1, l2)
-    print(value)
+    radio.write(message)
+    print("Sent:", message)
+    time.sleep(1)
